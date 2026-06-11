@@ -89,7 +89,7 @@ function PercentageCard({ percentage }: { percentage: number }) {
   return (
     <TouchableOpacity
       activeOpacity={0.8}
-      onPress={() => router.push('/stats' as never)}
+      onPress={() => router.push('/stats')}
       className={[
         'rounded-lg px-4 py-6 items-center',
         isGood ? 'bg-greenLight' : 'bg-redLight',
@@ -125,7 +125,7 @@ function MealRow({ meal }: { meal: Meal }) {
   return (
     <TouchableOpacity
       activeOpacity={0.7}
-      onPress={() => router.push(`/meals/${meal.id}` as never)}
+      onPress={() => router.push(`/meals/${meal.id}`)}
       className="flex-row items-center bg-white rounded-lg border border-gray5 px-3 py-3 gap-3"
     >
       <Text className="text-sm text-gray3 w-12">{meal.time}</Text>
@@ -168,7 +168,7 @@ export default function HomeScreen() {
               <Button
                 label="Nova refeição"
                 icon={<Plus size={18} color="#FFFFFF" />}
-                onPress={() => router.push('/meals/new' as never)}
+                onPress={() => router.push('/meals/new')}
               />
             </View>
           </>

@@ -51,7 +51,7 @@ export default function SignUp() {
           >
             <ArrowLeft size={24} color="#1B1D1E" />
           </TouchableOpacity>
-          <Text className="flex-1 text-center text-lg font-bold text-gray1 -ml-8">
+          <Text className="flex-1 text-center text-lg font-sans-bd text-gray1 -ml-8">
             Nova conta
           </Text>
         </View>

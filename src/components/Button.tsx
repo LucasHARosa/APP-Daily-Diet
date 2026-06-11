@@ -38,7 +38,7 @@ export function Button({
   ].join(' ');
 
   const textClass = [
-    'text-base font-semibold',
+    'text-base font-sans-sb',
     isPrimary
       ? 'text-white'
       : isDisabled

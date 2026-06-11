@@ -7,6 +7,12 @@ module.exports = {
   presets: [require('nativewind/preset')],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['NunitoSans_400Regular'],
+        'sans-md': ['NunitoSans_500Medium'],
+        'sans-sb': ['NunitoSans_600SemiBold'],
+        'sans-bd': ['NunitoSans_700Bold'],
+      },
       colors: {
         redDark: '#BF3B44',
         redMid: '#F3BABD',

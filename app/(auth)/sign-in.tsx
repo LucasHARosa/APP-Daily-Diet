@@ -64,17 +64,17 @@ export default function SignIn() {
               resizeMode="contain"
             />
             <View className="items-center">
-              <Text className="text-3xl font-bold text-gray1 leading-tight">
+              <Text className="text-3xl font-sans-bd text-gray1 leading-tight">
                 Daily
               </Text>
-              <Text className="text-3xl font-bold text-gray1 leading-tight">
+              <Text className="text-3xl font-sans-bd text-gray1 leading-tight">
                 Diet
               </Text>
             </View>
           </View>
 
           <View className="gap-6 mt-16">
-            <Text className="text-xl font-bold text-gray1 text-center">
+            <Text className="text-xl font-sans-bd text-gray1 text-center">
               Acesse sua conta
             </Text>
 
@@ -130,7 +130,7 @@ export default function SignIn() {
           <View className="items-center mt-12 gap-1">
             <Text className="text-sm text-gray3">Ainda não tem conta?</Text>
             <TouchableOpacity onPress={() => router.push('/(auth)/sign-up')}>
-              <Text className="text-sm font-semibold text-gray1 underline">
+              <Text className="text-sm font-sans-sb text-gray1 underline">
                 Criar conta
               </Text>
             </TouchableOpacity>

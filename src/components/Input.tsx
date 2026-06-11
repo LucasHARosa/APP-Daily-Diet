@@ -17,7 +17,7 @@ export function Input({ label, value, onChangeText, ...props }: InputProps) {
 
   return (
     <View className="gap-1">
-      <Text className="text-sm font-medium text-gray2">{label}</Text>
+      <Text className="text-sm font-sans-md text-gray2">{label}</Text>
       <TextInput
         value={value}
         onChangeText={onChangeText}

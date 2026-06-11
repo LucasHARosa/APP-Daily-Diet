@@ -71,12 +71,12 @@ function HomeHeader() {
           resizeMode="contain"
         />
         <View>
-          <Text className="text-lg font-bold text-gray1 leading-tight">Daily</Text>
-          <Text className="text-lg font-bold text-gray1 leading-tight">Diet</Text>
+          <Text className="text-lg font-sans-bd text-gray1 leading-tight">Daily</Text>
+          <Text className="text-lg font-sans-bd text-gray1 leading-tight">Diet</Text>
         </View>
       </View>
       <View className="w-11 h-11 rounded-full bg-gray2 items-center justify-center border-2 border-gray1">
-        <Text className="text-white text-sm font-bold">{initials}</Text>
+        <Text className="text-white text-sm font-sans-bd">{initials}</Text>
       </View>
     </View>
   );
@@ -102,7 +102,7 @@ function PercentageCard({ percentage }: { percentage: number }) {
       />
       <Text
         className={[
-          'text-4xl font-bold',
+          'text-4xl font-sans-bd',
           isGood ? 'text-greenDark' : 'text-redDark',
         ].join(' ')}
       >
@@ -162,7 +162,7 @@ export default function HomeScreen() {
               <PercentageCard percentage={MOCK_PERCENTAGE} />
             </View>
             <View className="px-6 mb-2">
-              <Text className="text-base font-bold text-gray1 mb-3">
+              <Text className="text-base font-sans-bd text-gray1 mb-3">
                 Refeições
               </Text>
               <Button
@@ -175,7 +175,7 @@ export default function HomeScreen() {
         }
         renderSectionHeader={({ section }) => (
           <View className="px-6">
-            <Text className="text-base font-bold text-gray1 mb-2 mt-4">
+            <Text className="text-base font-sans-bd text-gray1 mb-2 mt-4">
               {section.date}
             </Text>
           </View>

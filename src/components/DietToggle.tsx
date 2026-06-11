@@ -26,7 +26,7 @@ export function DietToggle({ value, onChange }: DietToggleProps) {
         />
         <Text
           className={[
-            'text-sm font-semibold',
+            'text-sm font-sans-sb',
             value === true ? 'text-greenDark' : 'text-gray2',
           ].join(' ')}
         >
@@ -52,7 +52,7 @@ export function DietToggle({ value, onChange }: DietToggleProps) {
         />
         <Text
           className={[
-            'text-sm font-semibold',
+            'text-sm font-sans-sb',
             value === false ? 'text-redDark' : 'text-gray2',
           ].join(' ')}
         >

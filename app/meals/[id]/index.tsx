@@ -4,6 +4,7 @@ import { Alert, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Button } from "@/components/Button";
+import { useToast } from "@/stores/toast-store";
 
 // ── Mock data ──────────────────────────────────────────────────────────────────
 
@@ -72,6 +73,8 @@ export default function MealDetail() {
   const badgeText = isOnDiet ? "dentro da dieta" : "fora da dieta";
   const badgeTextColor = isOnDiet ? "text-greenDark" : "text-redDark";
 
+  const { toast } = useToast();
+
   const handleDelete = () => {
     Alert.alert(
       "Excluir refeição",
@@ -81,7 +84,10 @@ export default function MealDetail() {
         {
           text: "Sim, excluir",
           style: "destructive",
-          onPress: () => router.replace("/(tabs)"),
+          onPress: () => {
+            toast("Refeição excluída.", "info");
+            router.replace("/(tabs)");
+          },
         },
       ],
     );

@@ -2,6 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "expo-router";
 import { ArrowLeft } from "lucide-react-native";
 import { useState } from "react";
+import { useToast } from "@/stores/toast-store";
 import { Controller, useForm } from "react-hook-form";
 import {
   Image,
@@ -84,6 +85,7 @@ function FeedbackScreen({
 
 export default function NewMeal() {
   const router = useRouter();
+  const { toast } = useToast();
   const [submitted, setSubmitted] = useState<boolean | null>(null);
 
   const {
@@ -96,6 +98,7 @@ export default function NewMeal() {
   });
 
   const onSubmit = (data: FormData) => {
+    toast("Refeição cadastrada!", "success");
     setSubmitted(data.isOnDiet);
   };
 

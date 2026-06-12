@@ -1,15 +1,18 @@
+import { useState, useCallback } from 'react';
 import {
   View,
   Text,
   Image,
   SectionList,
   TouchableOpacity,
+  RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { ArrowUpRight, Plus } from 'lucide-react-native';
 
 import { useAuthStore } from '@/stores/auth-store';
+import { useToast } from '@/stores/toast-store';
 import { Button } from '@/components/Button';
 
 // ── Mock data ──────────────────────────────────────────────────────────────────
@@ -147,6 +150,15 @@ function MealRow({ meal }: { meal: Meal }) {
 
 export default function HomeScreen() {
   const router = useRouter();
+  const { toast } = useToast();
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await new Promise((r) => setTimeout(r, 800));
+    setRefreshing(false);
+    toast('Refeições atualizadas!', 'success');
+  }, []);
 
   return (
     <SafeAreaView className="flex-1 bg-gray7" edges={['top']}>
@@ -155,6 +167,14 @@ export default function HomeScreen() {
         keyExtractor={(item) => item.id}
         stickySectionHeadersEnabled={false}
         contentContainerClassName="pb-6"
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor="#639339"
+            colors={['#639339']}
+          />
+        }
         ListHeaderComponent={
           <>
             <HomeHeader />

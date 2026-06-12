@@ -7,6 +7,7 @@ import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import { queryClient } from '@/services/query-client';
 import { useAuthStore } from '@/stores/auth-store';
+import { Toast } from '@/components/Toast';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -45,6 +46,7 @@ export default function RootLayout() {
     <QueryClientProvider client={queryClient}>
       <GestureHandlerRootView style={{ flex: 1 }}>
         <Stack screenOptions={{ headerShown: false }} />
+        <Toast />
       </GestureHandlerRootView>
     </QueryClientProvider>
   );

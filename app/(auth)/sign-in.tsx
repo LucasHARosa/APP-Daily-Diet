@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import {
   View,
   Text,
@@ -14,11 +13,13 @@ import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Eye, EyeOff } from 'lucide-react-native';
+import { useState } from 'react';
+import axios from 'axios';
 
 import { Input } from '@/components/Input';
 import { Button } from '@/components/Button';
-import { useAuthStore } from '@/stores/auth-store';
 import { useToast } from '@/stores/toast-store';
+import { useLoginMutation } from '@/queries/auth';
 
 const schema = z.object({
   email: z.email('E-mail inválido'),
@@ -28,11 +29,10 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 export default function SignIn() {
-  const { login } = useAuthStore();
   const { toast } = useToast();
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const { mutateAsync: login, isPending } = useLoginMutation();
 
   const {
     control,
@@ -42,19 +42,14 @@ export default function SignIn() {
 
   const onSubmit = async (data: FormData) => {
     try {
-      setIsLoading(true);
-      // Simula chamada à API (600ms)
-      await new Promise((r) => setTimeout(r, 600));
-      await login('mock-token-daily-diet', {
-        id: '1',
-        name: 'Lucas',
-        email: data.email,
-      });
+      await login({ email: data.email, password: data.password });
       toast('Bem-vindo de volta!', 'success');
-    } catch {
-      toast('Não foi possível conectar. Tente novamente.', 'error');
-    } finally {
-      setIsLoading(false);
+    } catch (err) {
+      if (axios.isAxiosError(err) && err.response?.status === 401) {
+        toast('Email ou senha incorretos.', 'error');
+      } else {
+        toast('Não foi possível conectar. Tente novamente.', 'error');
+      }
     }
   };
 
@@ -146,7 +141,7 @@ export default function SignIn() {
             <Button
               label="Entrar"
               onPress={handleSubmit(onSubmit)}
-              isLoading={isLoading}
+              isLoading={isPending}
             />
           </View>
 

@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -6,51 +6,18 @@ import {
   SectionList,
   TouchableOpacity,
   RefreshControl,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { ArrowUpRight, Plus } from 'lucide-react-native';
 
 import { useAuthStore } from '@/stores/auth-store';
-import { useToast } from '@/stores/toast-store';
 import { Button } from '@/components/Button';
-
-// ── Mock data ──────────────────────────────────────────────────────────────────
-
-const MOCK_PERCENTAGE = 90.86;
-
-interface Meal {
-  id: string;
-  time: string;
-  name: string;
-  isOnDiet: boolean;
-}
-
-interface MealSection {
-  date: string;
-  data: Meal[];
-}
-
-const MOCK_MEALS: MealSection[] = [
-  {
-    date: '12.08.22',
-    data: [
-      { id: '1', time: '20:00', name: 'X-tudo', isOnDiet: false },
-      { id: '2', time: '16:00', name: 'Whey protein com leite', isOnDiet: true },
-      { id: '3', time: '12:30', name: 'Salada cesar com frango...', isOnDiet: true },
-      { id: '4', time: '09:30', name: 'Vitamina de banana com...', isOnDiet: true },
-    ],
-  },
-  {
-    date: '11.08.22',
-    data: [
-      { id: '5', time: '20:00', name: 'X-tudo', isOnDiet: false },
-      { id: '6', time: '16:00', name: 'Whey protein com leite', isOnDiet: true },
-      { id: '7', time: '12:30', name: 'Salada cesar com frango...', isOnDiet: true },
-      { id: '8', time: '09:30', name: 'Vitamina de banana com...', isOnDiet: true },
-    ],
-  },
-];
+import { useMeals } from '@/queries/meals';
+import { useMetricsSummary } from '@/queries/metrics';
+import { groupMealsByDate, formatTimeLabel } from '@/utils/date';
+import type { Meal } from '@/types/api';
 
 // ── Sub-components ─────────────────────────────────────────────────────────────
 
@@ -131,7 +98,7 @@ function MealRow({ meal }: { meal: Meal }) {
       onPress={() => router.push(`/meals/${meal.id}`)}
       className="flex-row items-center bg-white rounded-lg border border-gray5 px-3 py-3 gap-3"
     >
-      <Text className="text-sm text-gray3 w-12">{meal.time}</Text>
+      <Text className="text-sm text-gray3 w-12">{formatTimeLabel(meal.eaten_at)}</Text>
       <View className="w-px h-4 bg-gray4" />
       <Text className="flex-1 text-base text-gray1" numberOfLines={1}>
         {meal.name}
@@ -139,7 +106,7 @@ function MealRow({ meal }: { meal: Meal }) {
       <View
         className={[
           'w-3 h-3 rounded-full',
-          meal.isOnDiet ? 'bg-greenMid' : 'bg-redMid',
+          meal.is_on_diet ? 'bg-greenMid' : 'bg-redMid',
         ].join(' ')}
       />
     </TouchableOpacity>
@@ -150,27 +117,32 @@ function MealRow({ meal }: { meal: Meal }) {
 
 export default function HomeScreen() {
   const router = useRouter();
-  const { toast } = useToast();
   const [refreshing, setRefreshing] = useState(false);
 
-  const onRefresh = useCallback(async () => {
+  const { data: meals, isLoading: mealsLoading, refetch: refetchMeals } = useMeals();
+  const { data: summary, isLoading: summaryLoading, refetch: refetchSummary } = useMetricsSummary();
+
+  const isLoading = mealsLoading || summaryLoading;
+  const sections = meals ? groupMealsByDate(meals) : [];
+  const percentage = summary?.onDietPercentage ?? 0;
+
+  const handleRefresh = async () => {
     setRefreshing(true);
-    await new Promise((r) => setTimeout(r, 800));
+    await Promise.all([refetchMeals(), refetchSummary()]);
     setRefreshing(false);
-    toast('Refeições atualizadas!', 'success');
-  }, []);
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-gray7" edges={['top']}>
-      <SectionList<Meal, MealSection>
-        sections={MOCK_MEALS}
+      <SectionList<Meal, { date: string; data: Meal[] }>
+        sections={sections}
         keyExtractor={(item) => item.id}
         stickySectionHeadersEnabled={false}
         contentContainerClassName="pb-6"
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
-            onRefresh={onRefresh}
+            onRefresh={handleRefresh}
             tintColor="#639339"
             colors={['#639339']}
           />
@@ -179,7 +151,13 @@ export default function HomeScreen() {
           <>
             <HomeHeader />
             <View className="px-6 mb-6">
-              <PercentageCard percentage={MOCK_PERCENTAGE} />
+              {isLoading ? (
+                <View className="rounded-lg px-4 py-6 items-center bg-gray6">
+                  <ActivityIndicator color="#639339" />
+                </View>
+              ) : (
+                <PercentageCard percentage={percentage} />
+              )}
             </View>
             <View className="px-6 mb-2">
               <Text className="text-base font-sans-bd text-gray1 mb-3">
@@ -205,6 +183,15 @@ export default function HomeScreen() {
             <MealRow meal={item} />
           </View>
         )}
+        ListEmptyComponent={
+          !isLoading ? (
+            <View className="px-6 mt-4">
+              <Text className="text-sm text-gray3 text-center">
+                Nenhuma refeição registrada ainda.
+              </Text>
+            </View>
+          ) : null
+        }
       />
     </SafeAreaView>
   );

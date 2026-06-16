@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import {
   View,
   Text,
@@ -13,10 +12,13 @@ import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowLeft, Eye, EyeOff } from 'lucide-react-native';
+import { useState } from 'react';
+import axios from 'axios';
 
 import { Input } from '@/components/Input';
 import { Button } from '@/components/Button';
 import { useToast } from '@/stores/toast-store';
+import { useRegisterMutation } from '@/queries/auth';
 
 const schema = z.object({
   name: z.string().min(2, 'Mínimo 2 caracteres'),
@@ -29,8 +31,8 @@ type FormData = z.infer<typeof schema>;
 export default function SignUp() {
   const router = useRouter();
   const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const { mutateAsync: register, isPending } = useRegisterMutation();
 
   const {
     control,
@@ -38,17 +40,17 @@ export default function SignUp() {
     formState: { errors },
   } = useForm<FormData>({ resolver: zodResolver(schema) });
 
-  const onSubmit = async (_data: FormData) => {
+  const onSubmit = async (data: FormData) => {
     try {
-      setIsLoading(true);
-      // Simula chamada à API (800ms)
-      await new Promise((r) => setTimeout(r, 800));
+      await register({ name: data.name, email: data.email, password: data.password });
       toast('Conta criada! Agora faça o login.', 'success');
       router.back();
-    } catch {
-      toast('Não foi possível criar a conta. Tente novamente.', 'error');
-    } finally {
-      setIsLoading(false);
+    } catch (err) {
+      if (axios.isAxiosError(err) && err.response?.status === 409) {
+        toast('Email já cadastrado.', 'error');
+      } else {
+        toast('Não foi possível criar a conta. Tente novamente.', 'error');
+      }
     }
   };
 
@@ -154,7 +156,7 @@ export default function SignUp() {
             <Button
               label="Criar conta"
               onPress={handleSubmit(onSubmit)}
-              isLoading={isLoading}
+              isLoading={isPending}
             />
           </View>
         </ScrollView>

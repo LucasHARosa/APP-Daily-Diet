@@ -9,55 +9,18 @@ import {
   Text,
   TouchableOpacity,
   View,
+  ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { z } from "zod";
+import { useEffect } from "react";
 
 import { Button } from "@/components/Button";
 import { DietToggle } from "@/components/DietToggle";
 import { Input } from "@/components/Input";
-
-// ── Mock data (mesma do detail) ────────────────────────────────────────────────
-
-const MOCK_MEALS: Record<
-  string,
-  {
-    name: string;
-    description: string;
-    date: string;
-    time: string;
-    isOnDiet: boolean;
-  }
-> = {
-  "1": {
-    name: "X-tudo",
-    description: "Xis completo da lancheria do bairro",
-    date: "12/08/2022",
-    time: "20:00",
-    isOnDiet: false,
-  },
-  "2": {
-    name: "Whey protein com leite",
-    description: "Whey protein com leite integral",
-    date: "12/08/2022",
-    time: "16:00",
-    isOnDiet: true,
-  },
-  "3": {
-    name: "Salada cesar com frango",
-    description: "Salada cesar com frango grelhado",
-    date: "12/08/2022",
-    time: "12:30",
-    isOnDiet: true,
-  },
-  "4": {
-    name: "Vitamina de banana com aveia",
-    description: "Vitamina de banana com aveia e mel",
-    date: "12/08/2022",
-    time: "09:30",
-    isOnDiet: true,
-  },
-};
+import { useToast } from "@/stores/toast-store";
+import { useMeal, useUpdateMeal } from "@/queries/meals";
+import { parseFormDateTime, formatDateForForm, formatTimeLabel } from "@/utils/date";
 
 // ── Schema ─────────────────────────────────────────────────────────────────────
 
@@ -76,28 +39,55 @@ type FormData = z.infer<typeof schema>;
 export default function EditMeal() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
+  const { toast } = useToast();
 
-  const meal = MOCK_MEALS[id];
+  const { data: meal, isLoading } = useMeal(id);
+  const { mutateAsync: updateMeal, isPending } = useUpdateMeal();
 
   const {
     control,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(schema),
-    defaultValues: {
-      name: meal?.name ?? "",
-      description: meal?.description ?? "",
-      date: meal?.date ?? "",
-      time: meal?.time ?? "",
-      isOnDiet: meal?.isOnDiet,
-    },
+    defaultValues: { name: "", description: "", date: "", time: "", isOnDiet: true },
   });
 
-  const onSubmit = (_data: FormData) => {
-    // Mock: navega de volta para o detalhe
-    router.back();
+  useEffect(() => {
+    if (meal) {
+      reset({
+        name: meal.name,
+        description: meal.description ?? "",
+        date: formatDateForForm(meal.eaten_at),
+        time: formatTimeLabel(meal.eaten_at),
+        isOnDiet: meal.is_on_diet,
+      });
+    }
+  }, [meal]);
+
+  const onSubmit = async (data: FormData) => {
+    try {
+      await updateMeal({
+        id,
+        name: data.name,
+        description: data.description || undefined,
+        eaten_at: parseFormDateTime(data.date, data.time),
+        is_on_diet: data.isOnDiet,
+      });
+      router.back();
+    } catch {
+      toast("Erro ao salvar alterações. Tente novamente.", "error");
+    }
   };
+
+  if (isLoading) {
+    return (
+      <SafeAreaView className="flex-1 bg-gray7 items-center justify-center">
+        <ActivityIndicator color="#639339" />
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-gray7" edges={["top"]}>
@@ -226,7 +216,11 @@ export default function EditMeal() {
 
         {/* Submit button */}
         <View className="px-6 py-4 bg-white">
-          <Button label="Salvar alterações" onPress={handleSubmit(onSubmit)} />
+          <Button
+            label="Salvar alterações"
+            onPress={handleSubmit(onSubmit)}
+            isLoading={isPending}
+          />
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>

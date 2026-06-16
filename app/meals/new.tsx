@@ -19,6 +19,8 @@ import { z } from "zod";
 import { Button } from "@/components/Button";
 import { DietToggle } from "@/components/DietToggle";
 import { Input } from "@/components/Input";
+import { useCreateMeal } from "@/queries/meals";
+import { parseFormDateTime } from "@/utils/date";
 
 // ── Schema ─────────────────────────────────────────────────────────────────────
 
@@ -87,6 +89,7 @@ export default function NewMeal() {
   const router = useRouter();
   const { toast } = useToast();
   const [submitted, setSubmitted] = useState<boolean | null>(null);
+  const { mutateAsync: createMeal, isPending } = useCreateMeal();
 
   const {
     control,
@@ -97,9 +100,18 @@ export default function NewMeal() {
     defaultValues: { name: "", description: "", date: "", time: "" },
   });
 
-  const onSubmit = (data: FormData) => {
-    toast("Refeição cadastrada!", "success");
-    setSubmitted(data.isOnDiet);
+  const onSubmit = async (data: FormData) => {
+    try {
+      await createMeal({
+        name: data.name,
+        description: data.description || undefined,
+        eaten_at: parseFormDateTime(data.date, data.time),
+        is_on_diet: data.isOnDiet,
+      });
+      setSubmitted(data.isOnDiet);
+    } catch {
+      toast("Erro ao cadastrar refeição. Tente novamente.", "error");
+    }
   };
 
   if (submitted !== null) {
@@ -236,7 +248,11 @@ export default function NewMeal() {
 
         {/* Submit button */}
         <View className="px-6 py-4 bg-white">
-          <Button label="Cadastrar refeição" onPress={handleSubmit(onSubmit)} />
+          <Button
+            label="Cadastrar refeição"
+            onPress={handleSubmit(onSubmit)}
+            isLoading={isPending}
+          />
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>

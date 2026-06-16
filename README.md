@@ -49,17 +49,17 @@ A React Native app to track daily meals and monitor diet progress — built with
 
 ## Tech Stack
 
-| Layer | Library | Version |
-|---|---|---|
-| Framework | Expo + expo-router | 56 / v4 |
-| Styling | NativeWind (Tailwind CSS for RN) | v4 |
-| Server state | TanStack Query | v5 |
-| Forms + validation | React Hook Form + Zod | — / v4 |
-| Client state | Zustand | — |
-| HTTP client | Axios | — |
-| Token storage | expo-secure-store | — |
-| Icons | lucide-react-native | — |
-| Font | Nunito Sans (Google Fonts) | 400 / 500 / 600 / 700 |
+| Layer              | Library                          | Version               |
+| ------------------ | -------------------------------- | --------------------- |
+| Framework          | Expo + expo-router               | 56 / v4               |
+| Styling            | NativeWind (Tailwind CSS for RN) | v4                    |
+| Server state       | TanStack Query                   | v5                    |
+| Forms + validation | React Hook Form + Zod            | — / v4                |
+| Client state       | Zustand                          | —                     |
+| HTTP client        | Axios                            | —                     |
+| Token storage      | expo-secure-store                | —                     |
+| Icons              | lucide-react-native              | —                     |
+| Font               | Nunito Sans (Google Fonts)       | 400 / 500 / 600 / 700 |
 
 ---
 
@@ -100,18 +100,18 @@ npm run ios        # open on iOS simulator
 
 ## Screens
 
-| Route | Screen | Description |
-|---|---|---|
-| `/(auth)/sign-in` | Sign In | Email + password, show/hide toggle, mock auth |
-| `/(auth)/sign-up` | Sign Up | Name + email + password, mock registration |
-| `/(tabs)/` | Home | Diet percentage card, meal list grouped by date |
-| `/(tabs)/meals` | Meals | Placeholder — reserved for filtered meal list |
-| `/(tabs)/plan` | Food Plan | Weekly planner with day selector and meal cards |
-| `/(tabs)/profile` | Profile | Health metrics form, BMR/TDEE calculator, logout |
-| `/stats` | Statistics | Percentage header, general stats, period breakdown |
-| `/meals/new` | New Meal | Create form + diet feedback screen |
-| `/meals/[id]` | Meal Detail | View meal, themed by diet status |
-| `/meals/[id]/edit` | Edit Meal | Pre-filled edit form |
+| Route              | Screen      | Description                                        |
+| ------------------ | ----------- | -------------------------------------------------- |
+| `/(auth)/sign-in`  | Sign In     | Email + password, show/hide toggle, mock auth      |
+| `/(auth)/sign-up`  | Sign Up     | Name + email + password, mock registration         |
+| `/(tabs)/`         | Home        | Diet percentage card, meal list grouped by date    |
+| `/(tabs)/meals`    | Meals       | Placeholder — reserved for filtered meal list      |
+| `/(tabs)/plan`     | Food Plan   | Weekly planner with day selector and meal cards    |
+| `/(tabs)/profile`  | Profile     | Health metrics form, BMR/TDEE calculator, logout   |
+| `/stats`           | Statistics  | Percentage header, general stats, period breakdown |
+| `/meals/new`       | New Meal    | Create form + diet feedback screen                 |
+| `/meals/[id]`      | Meal Detail | View meal, themed by diet status                   |
+| `/meals/[id]/edit` | Edit Meal   | Pre-filled edit form                               |
 
 ---
 
@@ -162,11 +162,11 @@ mobile-daily-diet/
 
 The app uses a green/red color system driven by diet status:
 
-| State | Background | Text | Dot |
-|---|---|---|---|
-| On-diet | `greenLight` `#E5F0DB` | `greenDark` `#639339` | `greenMid` |
-| Off-diet | `redLight` `#F4E6E7` | `redDark` `#BF3B44` | `redMid` |
-| Neutral | `gray6` `#EFF0F0` | `gray1` `#1B1D1E` | `gray4` |
+| State    | Background             | Text                  | Dot        |
+| -------- | ---------------------- | --------------------- | ---------- |
+| On-diet  | `greenLight` `#E5F0DB` | `greenDark` `#639339` | `greenMid` |
+| Off-diet | `redLight` `#F4E6E7`   | `redDark` `#BF3B44`   | `redMid`   |
+| Neutral  | `gray6` `#EFF0F0`      | `gray1` `#1B1D1E`     | `gray4`    |
 
 **Percentage rule:** card on home shows green if ≥ 70% of meals are on-diet, red otherwise.
 

@@ -1,8 +1,35 @@
+[![GitHub repo size](https://img.shields.io/github/repo-size/LucasHARosa/APP-Daily-Diet)](https://github.com/LucasHARosa/APP-Daily-Diet)
+[![GitHub language count](https://img.shields.io/github/languages/count/LucasHARosa/APP-Daily-Diet)](https://github.com/LucasHARosa/APP-Daily-Diet)
+[![GitHub top language](https://img.shields.io/github/languages/top/LucasHARosa/APP-Daily-Diet)](https://github.com/LucasHARosa/APP-Daily-Diet)
+[![GitHub last commit](https://img.shields.io/github/last-commit/LucasHARosa/APP-Daily-Diet)](https://github.com/LucasHARosa/APP-Daily-Diet)
+
 # Daily Diet
 
 A React Native app to track daily meals and monitor diet progress — built with Expo and a clean, opinionated mobile stack.
 
 > **Status:** All screens implemented with mock data. Ready for API integration.
+
+---
+
+## 📱 Demo
+
+<div align="center">
+  <img src=".github/assets/demo.gif" alt="App demo" width="300"/>
+</div>
+
+---
+
+## 🖼️ Screenshots
+
+<div align="center">
+  <img src=".github/assets/screen-home.png" alt="Home" width="200"/>
+  &nbsp;
+  <img src=".github/assets/screen-stats.png" alt="Statistics" width="200"/>
+  &nbsp;
+  <img src=".github/assets/screen-plan.png" alt="Food Plan" width="200"/>
+  &nbsp;
+  <img src=".github/assets/screen-profile.png" alt="Profile" width="200"/>
+</div>
 
 ---
 
@@ -174,3 +201,13 @@ When the backend is ready, replace mocks in this order:
 - [ ] `app/(tabs)/profile.tsx` → `GET /me/profile` + `PATCH /me/profile`
 
 > See [`ROADMAP.md`](../ROADMAP.md) for the full API reference and hook patterns.
+
+---
+
+<div align="center">
+
+[![forthebadge](https://forthebadge.com/images/badges/built-with-love.svg)](https://forthebadge.com) &nbsp;
+[![forthebadge](https://forthebadge.com/images/badges/made-with-javascript.svg)](https://forthebadge.com) &nbsp;
+[![forthebadge](https://forthebadge.com/images/badges/open-source.svg)](https://forthebadge.com)
+
+</div>

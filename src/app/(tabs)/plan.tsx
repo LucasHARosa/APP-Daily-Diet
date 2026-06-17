@@ -1,7 +1,10 @@
 import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
+import { Settings } from 'lucide-react-native';
 import { useState } from 'react';
 
+import { Button } from '@/components/Button';
 import { useActiveFoodPlan } from '@/queries/foodPlans';
 import type { FoodPlanDay, FoodPlanMealItem } from '@/types/api';
 
@@ -64,6 +67,7 @@ function MealItem({ meal }: { meal: FoodPlanMealItem }) {
 // ── Screen ─────────────────────────────────────────────────────────────────────
 
 export default function PlanScreen() {
+  const router = useRouter();
   const todayIndex = getTodayApiWeekday();
   const [activeDay, setActiveDay] = useState(todayIndex);
 
@@ -74,18 +78,26 @@ export default function PlanScreen() {
     (!plan || (error as { response?: { status?: number } } | null)?.response?.status === 404);
 
   const day: FoodPlanDay | undefined = plan?.days.find((d) => d.weekday === activeDay);
-  const onDietCount = 0; // food plan meals don't have is_on_diet
-  const offDietCount = 0;
   const totalCalories = day?.meals.reduce((sum, m) => sum + (m.calories ?? 0), 0) ?? 0;
 
   return (
     <SafeAreaView className="flex-1 bg-gray7" edges={['top', 'bottom']}>
       {/* Header */}
-      <View className="px-6 pt-4 pb-2">
-        <Text className="text-xl font-sans-bd text-gray1">Plano alimentar</Text>
-        {plan && (
-          <Text className="text-sm text-gray3 mt-0.5">{plan.title}</Text>
-        )}
+      <View className="flex-row items-center justify-between px-6 pt-4 pb-2">
+        <View>
+          <Text className="text-xl font-sans-bd text-gray1">Plano alimentar</Text>
+          {plan && (
+            <Text className="text-sm text-gray3 mt-0.5">{plan.title}</Text>
+          )}
+        </View>
+        <TouchableOpacity
+          onPress={() => router.push('/food-plans')}
+          className="flex-row items-center gap-1 p-2"
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+        >
+          <Settings size={18} color="#5C6265" />
+          <Text className="text-sm text-gray3">Gerenciar</Text>
+        </TouchableOpacity>
       </View>
 
       {isLoading ? (
@@ -93,13 +105,18 @@ export default function PlanScreen() {
           <ActivityIndicator color="#639339" />
         </View>
       ) : noActivePlan ? (
-        <View className="flex-1 items-center justify-center px-8">
+        <View className="flex-1 items-center justify-center px-8 gap-4">
           <Text className="text-base text-gray3 text-center">
             Nenhum plano ativo no momento.
           </Text>
-          <Text className="text-sm text-gray4 text-center mt-2">
+          <Text className="text-sm text-gray4 text-center">
             Crie um plano alimentar e ative-o para visualizar aqui.
           </Text>
+          <Button
+            label="Gerenciar planos"
+            variant="secondary"
+            onPress={() => router.push('/food-plans')}
+          />
         </View>
       ) : (
         <>

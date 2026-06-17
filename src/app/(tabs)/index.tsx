@@ -1,56 +1,22 @@
-import React, { useState } from 'react';
+import { useRouter } from "expo-router";
+import { ArrowUpRight, Plus } from "lucide-react-native";
+import { useState } from "react";
 import {
-  View,
-  Text,
-  Image,
-  SectionList,
-  TouchableOpacity,
-  RefreshControl,
   ActivityIndicator,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
-import { ArrowUpRight, Plus } from 'lucide-react-native';
+  RefreshControl,
+  SectionList,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-import { useAuthStore } from '@/stores/auth-store';
-import { Button } from '@/components/Button';
-import { useMeals } from '@/queries/meals';
-import { useMetricsSummary } from '@/queries/metrics';
-import { groupMealsByDate, formatTimeLabel } from '@/utils/date';
-import type { Meal } from '@/types/api';
-
-// ── Sub-components ─────────────────────────────────────────────────────────────
-
-function HomeHeader() {
-  const { user } = useAuthStore();
-  const initials = user?.name
-    ? user.name
-        .split(' ')
-        .slice(0, 2)
-        .map((n) => n[0])
-        .join('')
-        .toUpperCase()
-    : 'U';
-
-  return (
-    <View className="flex-row items-center justify-between px-6 py-4">
-      <View className="flex-row items-center gap-2">
-        <Image
-          source={require('@/assets/images/Logo.png')}
-          className="w-8 h-8"
-          resizeMode="contain"
-        />
-        <View>
-          <Text className="text-lg font-sans-bd text-gray1 leading-tight">Daily</Text>
-          <Text className="text-lg font-sans-bd text-gray1 leading-tight">Diet</Text>
-        </View>
-      </View>
-      <View className="w-11 h-11 rounded-full bg-gray2 items-center justify-center border-2 border-gray1">
-        <Text className="text-white text-sm font-sans-bd">{initials}</Text>
-      </View>
-    </View>
-  );
-}
+import { Button } from "@/components/Button";
+import { HomeHeader } from "@/components/HomeHeader";
+import { useMeals } from "@/queries/meals";
+import { useMetricsSummary } from "@/queries/metrics";
+import type { Meal } from "@/types/api";
+import { formatTimeLabel, groupMealsByDate } from "@/utils/date";
 
 function PercentageCard({ percentage }: { percentage: number }) {
   const router = useRouter();
@@ -59,24 +25,24 @@ function PercentageCard({ percentage }: { percentage: number }) {
   return (
     <TouchableOpacity
       activeOpacity={0.8}
-      onPress={() => router.push('/stats')}
+      onPress={() => router.push("/stats")}
       className={[
-        'rounded-lg px-4 py-6 items-center',
-        isGood ? 'bg-greenLight' : 'bg-redLight',
-      ].join(' ')}
+        "rounded-lg px-4 py-6 items-center",
+        isGood ? "bg-greenLight" : "bg-redLight",
+      ].join(" ")}
     >
       <ArrowUpRight
         size={20}
-        color={isGood ? '#639339' : '#BF3B44'}
-        style={{ position: 'absolute', top: 12, right: 12 }}
+        color={isGood ? "#639339" : "#BF3B44"}
+        style={{ position: "absolute", top: 12, right: 12 }}
       />
       <Text
         className={[
-          'text-4xl font-sans-bd',
-          isGood ? 'text-greenDark' : 'text-redDark',
-        ].join(' ')}
+          "text-4xl font-sans-bd",
+          isGood ? "text-greenDark" : "text-redDark",
+        ].join(" ")}
       >
-        {percentage.toLocaleString('pt-BR', {
+        {percentage.toLocaleString("pt-BR", {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2,
         })}
@@ -98,16 +64,18 @@ function MealRow({ meal }: { meal: Meal }) {
       onPress={() => router.push(`/meals/${meal.id}`)}
       className="flex-row items-center bg-white rounded-lg border border-gray5 px-3 py-3 gap-3"
     >
-      <Text className="text-sm text-gray3 w-12">{formatTimeLabel(meal.eaten_at)}</Text>
+      <Text className="text-sm text-gray3 w-12">
+        {formatTimeLabel(meal.eaten_at)}
+      </Text>
       <View className="w-px h-4 bg-gray4" />
       <Text className="flex-1 text-base text-gray1" numberOfLines={1}>
         {meal.name}
       </Text>
       <View
         className={[
-          'w-3 h-3 rounded-full',
-          meal.is_on_diet ? 'bg-greenMid' : 'bg-redMid',
-        ].join(' ')}
+          "w-3 h-3 rounded-full",
+          meal.is_on_diet ? "bg-greenMid" : "bg-redMid",
+        ].join(" ")}
       />
     </TouchableOpacity>
   );
@@ -119,8 +87,16 @@ export default function HomeScreen() {
   const router = useRouter();
   const [refreshing, setRefreshing] = useState(false);
 
-  const { data: meals, isLoading: mealsLoading, refetch: refetchMeals } = useMeals();
-  const { data: summary, isLoading: summaryLoading, refetch: refetchSummary } = useMetricsSummary();
+  const {
+    data: meals,
+    isLoading: mealsLoading,
+    refetch: refetchMeals,
+  } = useMeals();
+  const {
+    data: summary,
+    isLoading: summaryLoading,
+    refetch: refetchSummary,
+  } = useMetricsSummary();
 
   const isLoading = mealsLoading || summaryLoading;
   const sections = meals ? groupMealsByDate(meals) : [];
@@ -133,7 +109,7 @@ export default function HomeScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-gray7" edges={['top']}>
+    <SafeAreaView className="flex-1 bg-gray7" edges={["top"]}>
       <SectionList<Meal, { date: string; data: Meal[] }>
         sections={sections}
         keyExtractor={(item) => item.id}
@@ -144,7 +120,7 @@ export default function HomeScreen() {
             refreshing={refreshing}
             onRefresh={handleRefresh}
             tintColor="#639339"
-            colors={['#639339']}
+            colors={["#639339"]}
           />
         }
         ListHeaderComponent={
@@ -166,7 +142,7 @@ export default function HomeScreen() {
               <Button
                 label="Nova refeição"
                 icon={<Plus size={18} color="#FFFFFF" />}
-                onPress={() => router.push('/meals/new')}
+                onPress={() => router.push("/meals/new")}
               />
             </View>
           </>

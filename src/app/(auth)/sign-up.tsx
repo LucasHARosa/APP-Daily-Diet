@@ -1,22 +1,20 @@
 import {
   View,
-  Text,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ArrowLeft, Eye, EyeOff } from 'lucide-react-native';
-import { useState } from 'react';
 import axios from 'axios';
 
-import { Input } from '@/components/Input';
 import { Button } from '@/components/Button';
+import { AuthHeader } from '@/components/auth/AuthHeader';
+import { TextField } from '@/components/auth/TextField';
+import { PasswordField } from '@/components/auth/PasswordField';
 import { useToast } from '@/stores/toast-store';
 import { useRegisterMutation } from '@/queries/auth';
 
@@ -31,7 +29,6 @@ type FormData = z.infer<typeof schema>;
 export default function SignUp() {
   const router = useRouter();
   const { toast } = useToast();
-  const [showPassword, setShowPassword] = useState(false);
   const { mutateAsync: register, isPending } = useRegisterMutation();
 
   const {
@@ -57,54 +54,37 @@ export default function SignUp() {
   return (
     <SafeAreaView className="flex-1 bg-gray7">
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         className="flex-1"
       >
-        {/* Header */}
-        <View className="flex-row items-center px-4 pt-2 pb-4">
-          <TouchableOpacity
-            onPress={() => router.back()}
-            className="p-2 -ml-2"
-            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-          >
-            <ArrowLeft size={24} color="#1B1D1E" />
-          </TouchableOpacity>
-          <Text className="flex-1 text-center text-lg font-sans-bd text-gray1 -ml-8">
-            Nova conta
-          </Text>
-        </View>
-
         <ScrollView
-          contentContainerClassName="px-6 pt-4 pb-10 gap-4"
+          contentContainerClassName="flex-grow px-6 pt-6 pb-10"
           keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
         >
-          {/* Nome */}
-          <View className="gap-1">
+          <AuthHeader subtitle="Crie sua conta" onBack={() => router.back()} />
+
+          <View className="gap-4 mt-10">
             <Controller
               control={control}
               name="name"
               render={({ field: { onChange, value } }) => (
-                <Input
+                <TextField
                   label="Nome"
                   value={value}
                   onChangeText={onChange}
                   autoCapitalize="words"
                   placeholder="Seu nome completo"
+                  error={errors.name?.message}
                 />
               )}
             />
-            {errors.name && (
-              <Text className="text-xs text-redDark">{errors.name.message}</Text>
-            )}
-          </View>
 
-          {/* E-mail */}
-          <View className="gap-1">
             <Controller
               control={control}
               name="email"
               render={({ field: { onChange, value } }) => (
-                <Input
+                <TextField
                   label="E-mail"
                   value={value}
                   onChangeText={onChange}
@@ -112,47 +92,27 @@ export default function SignUp() {
                   autoCapitalize="none"
                   autoCorrect={false}
                   placeholder="seuemail@exemplo.com"
+                  error={errors.email?.message}
                 />
               )}
             />
-            {errors.email && (
-              <Text className="text-xs text-redDark">{errors.email.message}</Text>
-            )}
-          </View>
 
-          {/* Senha com toggle */}
-          <View className="gap-1">
             <Controller
               control={control}
               name="password"
               render={({ field: { onChange, value } }) => (
-                <Input
+                <PasswordField
                   label="Senha"
                   value={value}
                   onChangeText={onChange}
-                  secureTextEntry={!showPassword}
                   placeholder="Mínimo 6 caracteres"
-                  rightElement={
-                    <TouchableOpacity
-                      onPress={() => setShowPassword((v) => !v)}
-                      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                    >
-                      {showPassword ? (
-                        <EyeOff size={18} color="#5C6265" />
-                      ) : (
-                        <Eye size={18} color="#5C6265" />
-                      )}
-                    </TouchableOpacity>
-                  }
+                  error={errors.password?.message}
                 />
               )}
             />
-            {errors.password && (
-              <Text className="text-xs text-redDark">{errors.password.message}</Text>
-            )}
           </View>
 
-          <View className="mt-2">
+          <View className="mt-8">
             <Button
               label="Criar conta"
               onPress={handleSubmit(onSubmit)}

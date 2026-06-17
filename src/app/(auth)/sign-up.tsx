@@ -11,10 +11,14 @@ import { useRouter } from 'expo-router';
 import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ArrowLeft } from 'lucide-react-native';
+import { ArrowLeft, Eye, EyeOff } from 'lucide-react-native';
+import { useState } from 'react';
+import axios from 'axios';
 
 import { Input } from '@/components/Input';
 import { Button } from '@/components/Button';
+import { useToast } from '@/stores/toast-store';
+import { useRegisterMutation } from '@/queries/auth';
 
 const schema = z.object({
   name: z.string().min(2, 'Mínimo 2 caracteres'),
@@ -26,6 +30,9 @@ type FormData = z.infer<typeof schema>;
 
 export default function SignUp() {
   const router = useRouter();
+  const { toast } = useToast();
+  const [showPassword, setShowPassword] = useState(false);
+  const { mutateAsync: register, isPending } = useRegisterMutation();
 
   const {
     control,
@@ -33,9 +40,18 @@ export default function SignUp() {
     formState: { errors },
   } = useForm<FormData>({ resolver: zodResolver(schema) });
 
-  const onSubmit = (_data: FormData) => {
-    // Not integrated with API yet
-    router.back();
+  const onSubmit = async (data: FormData) => {
+    try {
+      await register({ name: data.name, email: data.email, password: data.password });
+      toast('Conta criada! Agora faça o login.', 'success');
+      router.back();
+    } catch (err) {
+      if (axios.isAxiosError(err) && err.response?.status === 409) {
+        toast('Email já cadastrado.', 'error');
+      } else {
+        toast('Não foi possível criar a conta. Tente novamente.', 'error');
+      }
+    }
   };
 
   return (
@@ -53,7 +69,7 @@ export default function SignUp() {
           >
             <ArrowLeft size={24} color="#1B1D1E" />
           </TouchableOpacity>
-          <Text className="flex-1 text-center text-lg font-bold text-gray1 -ml-8">
+          <Text className="flex-1 text-center text-lg font-sans-bd text-gray1 -ml-8">
             Nova conta
           </Text>
         </View>
@@ -62,72 +78,87 @@ export default function SignUp() {
           contentContainerClassName="px-6 pt-4 pb-10 gap-4"
           keyboardShouldPersistTaps="handled"
         >
-          <Controller
-            control={control}
-            name="name"
-            render={({ field: { onChange, value } }) => (
-              <Input
-                label="Nome"
-                value={value}
-                onChangeText={onChange}
-                autoCapitalize="words"
-                placeholder="Seu nome completo"
-              />
+          {/* Nome */}
+          <View className="gap-1">
+            <Controller
+              control={control}
+              name="name"
+              render={({ field: { onChange, value } }) => (
+                <Input
+                  label="Nome"
+                  value={value}
+                  onChangeText={onChange}
+                  autoCapitalize="words"
+                  placeholder="Seu nome completo"
+                />
+              )}
+            />
+            {errors.name && (
+              <Text className="text-xs text-redDark">{errors.name.message}</Text>
             )}
-          />
-          {errors.name && (
-            <Text className="text-xs text-redDark -mt-2">
-              {errors.name.message}
-            </Text>
-          )}
-
-          <Controller
-            control={control}
-            name="email"
-            render={({ field: { onChange, value } }) => (
-              <Input
-                label="E-mail"
-                value={value}
-                onChangeText={onChange}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                autoCorrect={false}
-                placeholder="seuemail@exemplo.com"
-              />
-            )}
-          />
-          {errors.email && (
-            <Text className="text-xs text-redDark -mt-2">
-              {errors.email.message}
-            </Text>
-          )}
-
-          <Controller
-            control={control}
-            name="password"
-            render={({ field: { onChange, value } }) => (
-              <Input
-                label="Senha"
-                value={value}
-                onChangeText={onChange}
-                secureTextEntry
-                placeholder="Mínimo 6 caracteres"
-              />
-            )}
-          />
-          {errors.password && (
-            <Text className="text-xs text-redDark -mt-2">
-              {errors.password.message}
-            </Text>
-          )}
-
-          <View className="mt-2">
-            <Button label="Criar conta" onPress={handleSubmit(onSubmit)} />
           </View>
 
-          <Text className="text-xs text-gray3 text-center mt-2">
-            Integração com API em breve
-          </Text>
+          {/* E-mail */}
+          <View className="gap-1">
+            <Controller
+              control={control}
+              name="email"
+              render={({ field: { onChange, value } }) => (
+                <Input
+                  label="E-mail"
+                  value={value}
+                  onChangeText={onChange}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  placeholder="seuemail@exemplo.com"
+                />
+              )}
+            />
+            {errors.email && (
+              <Text className="text-xs text-redDark">{errors.email.message}</Text>
+            )}
+          </View>
+
+          {/* Senha com toggle */}
+          <View className="gap-1">
+            <Controller
+              control={control}
+              name="password"
+              render={({ field: { onChange, value } }) => (
+                <Input
+                  label="Senha"
+                  value={value}
+                  onChangeText={onChange}
+                  secureTextEntry={!showPassword}
+                  placeholder="Mínimo 6 caracteres"
+                  rightElement={
+                    <TouchableOpacity
+                      onPress={() => setShowPassword((v) => !v)}
+                      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                    >
+                      {showPassword ? (
+                        <EyeOff size={18} color="#5C6265" />
+                      ) : (
+                        <Eye size={18} color="#5C6265" />
+                      )}
+                    </TouchableOpacity>
+                  }
+                />
+              )}
+            />
+            {errors.password && (
+              <Text className="text-xs text-redDark">{errors.password.message}</Text>
+            )}
+          </View>
+
+          <View className="mt-2">
+            <Button
+              label="Criar conta"
+              onPress={handleSubmit(onSubmit)}
+              isLoading={isPending}
+            />
+          </View>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>

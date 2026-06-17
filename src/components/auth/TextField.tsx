@@ -10,7 +10,7 @@ type TextFieldProps = ComponentProps<typeof Input> & {
 export function TextField({ error, ...props }: TextFieldProps) {
   return (
     <View className="gap-1">
-      <Input {...props} />
+      <Input accent="green" {...props} />
       {error && <Text className="text-xs text-redDark">{error}</Text>}
     </View>
   );

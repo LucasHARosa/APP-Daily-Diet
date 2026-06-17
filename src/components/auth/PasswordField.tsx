@@ -29,6 +29,7 @@ export function PasswordField({
         onChangeText={onChangeText}
         secureTextEntry={!showPassword}
         placeholder={placeholder}
+        accent="green"
         rightElement={
           <TouchableOpacity
             onPress={() => setShowPassword((v) => !v)}

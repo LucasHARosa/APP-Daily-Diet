@@ -6,7 +6,7 @@ import {
   type TouchableOpacityProps,
 } from 'react-native';
 
-type Variant = 'primary' | 'secondary';
+type Variant = 'primary' | 'secondary' | 'brand';
 
 interface ButtonProps extends Omit<TouchableOpacityProps, 'children'> {
   label: string;
@@ -24,11 +24,17 @@ export function Button({
   ...props
 }: ButtonProps) {
   const isPrimary = variant === 'primary';
+  const isBrand = variant === 'brand';
+  const hasWhiteText = isPrimary || isBrand;
   const isDisabled = disabled || isLoading;
 
   const containerClass = [
     'flex-row items-center justify-center gap-2 rounded-lg px-4 py-4',
-    isPrimary
+    isBrand
+      ? isDisabled
+        ? 'bg-greenMid'
+        : 'bg-greenDark'
+      : isPrimary
       ? isDisabled
         ? 'bg-gray1 opacity-50'
         : 'bg-gray1'
@@ -39,7 +45,7 @@ export function Button({
 
   const textClass = [
     'text-base font-sans-sb',
-    isPrimary
+    hasWhiteText
       ? 'text-white'
       : isDisabled
       ? 'text-gray4'
@@ -54,7 +60,7 @@ export function Button({
       {...props}
     >
       {isLoading ? (
-        <ActivityIndicator color={isPrimary ? '#FFFFFF' : '#1B1D1E'} />
+        <ActivityIndicator color={hasWhiteText ? '#FFFFFF' : '#1B1D1E'} />
       ) : (
         <>
           {icon != null && <View>{icon}</View>}

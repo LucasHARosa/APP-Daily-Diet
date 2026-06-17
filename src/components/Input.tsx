@@ -9,12 +9,21 @@ import {
 interface InputProps extends TextInputProps {
   label: string;
   rightElement?: React.ReactNode;
+  accent?: 'default' | 'green';
 }
 
-export function Input({ label, value, onChangeText, rightElement, ...props }: InputProps) {
+export function Input({
+  label,
+  value,
+  onChangeText,
+  rightElement,
+  accent = 'default',
+  ...props
+}: InputProps) {
   const [isFocused, setIsFocused] = useState(false);
 
   const hasBorderActive = isFocused || (typeof value === 'string' && value.length > 0);
+  const activeBorderClass = accent === 'green' ? 'border-greenDark' : 'border-gray1';
 
   return (
     <View className="gap-1">
@@ -22,7 +31,7 @@ export function Input({ label, value, onChangeText, rightElement, ...props }: In
       <View
         className={[
           'flex-row items-center rounded-lg border bg-white',
-          hasBorderActive ? 'border-gray1' : 'border-gray5',
+          hasBorderActive ? activeBorderClass : 'border-gray5',
         ].join(' ')}
       >
         <TextInput

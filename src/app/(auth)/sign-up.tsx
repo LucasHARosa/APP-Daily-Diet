@@ -5,6 +5,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
 import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
@@ -52,19 +53,25 @@ export default function SignUp() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-gray7">
+    <SafeAreaView className="flex-1 bg-gray7" edges={['bottom', 'left', 'right']}>
+      <StatusBar style="dark" />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         className="flex-1"
       >
         <ScrollView
-          contentContainerClassName="flex-grow px-6 pt-6 pb-10"
+          contentContainerClassName="px-6 pb-10"
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
+          automaticallyAdjustKeyboardInsets
         >
-          <AuthHeader subtitle="Crie sua conta" onBack={() => router.back()} />
+          <AuthHeader
+            eyebrow="Vamos começar"
+            subtitle="Crie sua conta"
+            onBack={() => router.back()}
+          />
 
-          <View className="gap-4 mt-10">
+          <View className="gap-5 mt-8">
             <Controller
               control={control}
               name="name"
@@ -115,6 +122,7 @@ export default function SignUp() {
           <View className="mt-8">
             <Button
               label="Criar conta"
+              variant="brand"
               onPress={handleSubmit(onSubmit)}
               isLoading={isPending}
             />

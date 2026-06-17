@@ -2,11 +2,15 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/services/api';
 import type { Meal } from '@/types/api';
 
-export function useMeals() {
+export type MealStatusFilter = 'all' | 'on_diet' | 'off_diet';
+
+export function useMeals(status: MealStatusFilter = 'all') {
   return useQuery({
-    queryKey: ['meals'],
+    queryKey: ['meals', { status }],
     queryFn: async () => {
-      const res = await api.get<Meal[]>('/meals');
+      const res = await api.get<Meal[]>('/meals', {
+        params: status !== 'all' ? { status } : undefined,
+      });
       return res.data;
     },
   });

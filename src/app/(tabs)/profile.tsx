@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LogOut, Minus, Plus } from 'lucide-react-native';
@@ -14,6 +15,8 @@ import { useAuthStore } from '@/stores/auth-store';
 import { useToast } from '@/stores/toast-store';
 import { Button } from '@/components/Button';
 import { Input } from '@/components/Input';
+import { useProfile, useUpdateProfile } from '@/queries/profile';
+import { ageToBirthDate, birthDateToAge } from '@/utils/date';
 
 // ── Tipos ──────────────────────────────────────────────────────────────────────
 
@@ -105,15 +108,26 @@ function MetricDisplay({ label, value, unit, highlight }: {
 export default function ProfileScreen() {
   const { user, logout } = useAuthStore();
   const { toast } = useToast();
-  const [isSaving, setIsSaving] = useState(false);
 
-  // Dados físicos (mock — sem persistência por enquanto)
-  const [weight, setWeight]       = useState('78');
-  const [height, setHeight]       = useState('178');
-  const [age, setAge]             = useState('26');
-  const [bodyFat, setBodyFat]     = useState('18');
-  const [activity, setActivity]   = useState<ActivityLevel>('moderate');
-  const [gymDays, setGymDays]     = useState(4);
+  const { data: profile, isLoading } = useProfile();
+  const { mutateAsync: updateProfile, isPending: isSaving } = useUpdateProfile();
+
+  const [weight, setWeight]     = useState('');
+  const [height, setHeight]     = useState('');
+  const [age, setAge]           = useState('');
+  const [bodyFat, setBodyFat]   = useState('');
+  const [activity, setActivity] = useState<ActivityLevel>('moderate');
+  const [gymDays, setGymDays]   = useState(0);
+
+  useEffect(() => {
+    if (!profile) return;
+    setWeight(profile.weight_kg != null ? String(profile.weight_kg) : '');
+    setHeight(profile.height_cm != null ? String(profile.height_cm) : '');
+    setAge(profile.birth_date ? String(birthDateToAge(profile.birth_date)) : '');
+    setBodyFat(profile.body_fat_percentage != null ? String(profile.body_fat_percentage) : '');
+    setActivity((profile.activity_level as ActivityLevel) ?? 'moderate');
+    setGymDays(profile.gym_frequency_per_week ?? 0);
+  }, [profile]);
 
   const initials = user?.name
     ? user.name.split(' ').slice(0, 2).map((n) => n[0]).join('').toUpperCase()
@@ -128,13 +142,18 @@ export default function ProfileScreen() {
 
   const handleSave = async () => {
     try {
-      setIsSaving(true);
-      await new Promise((r) => setTimeout(r, 600));
+      await updateProfile({
+        weight_kg: w > 0 ? w : null,
+        height_cm: h > 0 ? Math.round(h) : null,
+        birth_date: a > 0 ? ageToBirthDate(a) : null,
+        body_fat_percentage: parseFloat(bodyFat) || null,
+        basal_calories: bmr > 0 ? bmr : null,
+        activity_level: activity,
+        gym_frequency_per_week: gymDays,
+      });
       toast('Perfil atualizado com sucesso!', 'success');
     } catch {
       toast('Erro ao salvar. Tente novamente.', 'error');
-    } finally {
-      setIsSaving(false);
     }
   };
 
@@ -163,116 +182,122 @@ export default function ProfileScreen() {
             <Text className="text-sm text-gray3">{user?.email ?? ''}</Text>
           </View>
 
-          {/* Dados físicos */}
-          <View className="gap-3">
-            <SectionTitle label="Dados físicos" />
+          {isLoading ? (
+            <ActivityIndicator color="#639339" />
+          ) : (
+            <>
+              {/* Dados físicos */}
+              <View className="gap-3">
+                <SectionTitle label="Dados físicos" />
 
-            <View className="flex-row gap-3">
-              <View className="flex-1">
-                <Input
-                  label="Peso (kg)"
-                  value={weight}
-                  onChangeText={setWeight}
-                  keyboardType="decimal-pad"
-                  placeholder="0"
+                <View className="flex-row gap-3">
+                  <View className="flex-1">
+                    <Input
+                      label="Peso (kg)"
+                      value={weight}
+                      onChangeText={setWeight}
+                      keyboardType="decimal-pad"
+                      placeholder="0"
+                    />
+                  </View>
+                  <View className="flex-1">
+                    <Input
+                      label="Altura (cm)"
+                      value={height}
+                      onChangeText={setHeight}
+                      keyboardType="number-pad"
+                      placeholder="0"
+                    />
+                  </View>
+                </View>
+
+                <View className="flex-row gap-3">
+                  <View className="flex-1">
+                    <Input
+                      label="Idade"
+                      value={age}
+                      onChangeText={setAge}
+                      keyboardType="number-pad"
+                      placeholder="0"
+                    />
+                  </View>
+                  <View className="flex-1">
+                    <Input
+                      label="% Gordura corporal"
+                      value={bodyFat}
+                      onChangeText={setBodyFat}
+                      keyboardType="decimal-pad"
+                      placeholder="0"
+                    />
+                  </View>
+                </View>
+              </View>
+
+              {/* Nível de atividade */}
+              <View className="gap-3">
+                <SectionTitle label="Nível de atividade" />
+                <View className="flex-row flex-wrap gap-2">
+                  {ACTIVITY_OPTIONS.map((opt) => {
+                    const isSelected = activity === opt.key;
+                    return (
+                      <TouchableOpacity
+                        key={opt.key}
+                        onPress={() => setActivity(opt.key)}
+                        className={[
+                          'px-4 py-2 rounded-full border',
+                          isSelected
+                            ? 'bg-gray1 border-gray1'
+                            : 'bg-white border-gray4',
+                        ].join(' ')}
+                      >
+                        <Text
+                          className={[
+                            'text-sm font-sans-md',
+                            isSelected ? 'text-white' : 'text-gray3',
+                          ].join(' ')}
+                        >
+                          {opt.label}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              </View>
+
+              {/* Frequência na academia */}
+              <View className="gap-3">
+                <SectionTitle label="Frequência na academia" />
+                <Stepper
+                  value={gymDays}
+                  unit="dias por semana"
+                  onDecrement={() => setGymDays((d) => Math.max(0, d - 1))}
+                  onIncrement={() => setGymDays((d) => Math.min(7, d + 1))}
                 />
               </View>
-              <View className="flex-1">
-                <Input
-                  label="Altura (cm)"
-                  value={height}
-                  onChangeText={setHeight}
-                  keyboardType="number-pad"
-                  placeholder="0"
-                />
-              </View>
-            </View>
 
-            <View className="flex-row gap-3">
-              <View className="flex-1">
-                <Input
-                  label="Idade"
-                  value={age}
-                  onChangeText={setAge}
-                  keyboardType="number-pad"
-                  placeholder="0"
-                />
-              </View>
-              <View className="flex-1">
-                <Input
-                  label="% Gordura corporal"
-                  value={bodyFat}
-                  onChangeText={setBodyFat}
-                  keyboardType="decimal-pad"
-                  placeholder="0"
-                />
-              </View>
-            </View>
-          </View>
-
-          {/* Nível de atividade */}
-          <View className="gap-3">
-            <SectionTitle label="Nível de atividade" />
-            <View className="flex-row flex-wrap gap-2">
-              {ACTIVITY_OPTIONS.map((opt) => {
-                const isSelected = activity === opt.key;
-                return (
-                  <TouchableOpacity
-                    key={opt.key}
-                    onPress={() => setActivity(opt.key)}
-                    className={[
-                      'px-4 py-2 rounded-full border',
-                      isSelected
-                        ? 'bg-gray1 border-gray1'
-                        : 'bg-white border-gray4',
-                    ].join(' ')}
-                  >
-                    <Text
-                      className={[
-                        'text-sm font-sans-md',
-                        isSelected ? 'text-white' : 'text-gray3',
-                      ].join(' ')}
-                    >
-                      {opt.label}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-          </View>
-
-          {/* Frequência na academia */}
-          <View className="gap-3">
-            <SectionTitle label="Frequência na academia" />
-            <Stepper
-              value={gymDays}
-              unit="dias por semana"
-              onDecrement={() => setGymDays((d) => Math.max(0, d - 1))}
-              onIncrement={() => setGymDays((d) => Math.min(7, d + 1))}
-            />
-          </View>
-
-          {/* Metabolismo calculado */}
-          {bmr > 0 && (
-            <View className="gap-3">
-              <SectionTitle label="Metabolismo estimado" />
-              <View className="flex-row gap-3">
-                <MetricDisplay
-                  label="taxa metabólica basal"
-                  value={bmr.toLocaleString('pt-BR')}
-                  unit="kcal/dia"
-                />
-                <MetricDisplay
-                  label="gasto energético total"
-                  value={tdee.toLocaleString('pt-BR')}
-                  unit="kcal/dia"
-                  highlight
-                />
-              </View>
-              <Text className="text-xs text-gray3 text-center">
-                Calculado via Mifflin-St Jeor · valores estimados
-              </Text>
-            </View>
+              {/* Metabolismo calculado */}
+              {bmr > 0 && (
+                <View className="gap-3">
+                  <SectionTitle label="Metabolismo estimado" />
+                  <View className="flex-row gap-3">
+                    <MetricDisplay
+                      label="taxa metabólica basal"
+                      value={bmr.toLocaleString('pt-BR')}
+                      unit="kcal/dia"
+                    />
+                    <MetricDisplay
+                      label="gasto energético total"
+                      value={tdee.toLocaleString('pt-BR')}
+                      unit="kcal/dia"
+                      highlight
+                    />
+                  </View>
+                  <Text className="text-xs text-gray3 text-center">
+                    Calculado via Mifflin-St Jeor · valores estimados
+                  </Text>
+                </View>
+              )}
+            </>
           )}
 
           {/* Ações */}

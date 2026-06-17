@@ -55,3 +55,14 @@ export function formatISODate(date: Date): string {
   const dd = String(date.getDate()).padStart(2, '0');
   return `${yyyy}-${mm}-${dd}`;
 }
+
+export function ageToBirthDate(age: number): string {
+  // Aproximação: usa 1º de janeiro do ano de nascimento
+  const birthYear = new Date().getFullYear() - age;
+  return `${birthYear}-01-01`;
+}
+
+export function birthDateToAge(birthDate: string): number {
+  const birthYear = Number(birthDate.slice(0, 4));
+  return new Date().getFullYear() - birthYear;
+}

@@ -76,3 +76,15 @@ export type LoginResponse = {
   refresh_token: string;
   user: AuthUser;
 };
+
+export type Profile = {
+  weight_kg: number | null;
+  height_cm: number | null;
+  birth_date: string | null;
+  body_fat_percentage: number | null;
+  basal_calories: number | null;
+  activity_level: string | null;
+  gym_frequency_per_week: number | null;
+};
+
+export type UpdateProfileInput = Partial<Profile>;

@@ -77,11 +77,20 @@ export default function MealDetail() {
               {meal ? `${formatDateForForm(meal.eaten_at)} às ${formatTimeLabel(meal.eaten_at)}` : ''}
             </Text>
 
-            <View className="flex-row items-center gap-2 self-start bg-gray6 px-3 py-1 rounded-full">
-              <View className={["w-2 h-2 rounded-full", badgeColor].join(" ")} />
-              <Text className={["text-sm font-sans-md", badgeTextColor].join(" ")}>
-                {badgeText}
-              </Text>
+            <View className="flex-row items-center gap-3">
+              <View className="flex-row items-center gap-2 self-start bg-gray6 px-3 py-1 rounded-full">
+                <View className={["w-2 h-2 rounded-full", badgeColor].join(" ")} />
+                <Text className={["text-sm font-sans-md", badgeTextColor].join(" ")}>
+                  {badgeText}
+                </Text>
+              </View>
+              {meal?.calories != null && (
+                <View className="self-start bg-gray6 px-3 py-1 rounded-full">
+                  <Text className="text-sm font-sans-md text-gray2">
+                    {meal.calories} kcal
+                  </Text>
+                </View>
+              )}
             </View>
           </>
         )}

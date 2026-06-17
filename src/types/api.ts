@@ -56,11 +56,14 @@ export type FoodPlanDay = {
   meals: FoodPlanMealItem[];
 };
 
-export type FoodPlanActive = {
+export type FoodPlanSummary = {
   id: string;
   title: string;
   description: string | null;
   is_active: boolean;
+};
+
+export type FoodPlanActive = FoodPlanSummary & {
   days: FoodPlanDay[];
 };
 
@@ -88,3 +91,18 @@ export type Profile = {
 };
 
 export type UpdateProfileInput = Partial<Profile>;
+
+export type CalorieEstimationItem = {
+  name: string;
+  calories: number;
+};
+
+export type CalorieEstimation = {
+  id: string;
+  description: string;
+  estimated_calories: number;
+  confidence: string;
+  items: CalorieEstimationItem[];
+  observation: string | null;
+  created_at: string;
+};

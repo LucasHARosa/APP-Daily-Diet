@@ -1,10 +1,11 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "expo-router";
-import { ArrowLeft } from "lucide-react-native";
+import { ArrowLeft, Sparkles } from "lucide-react-native";
 import { useState } from "react";
 import { useToast } from "@/stores/toast-store";
 import { Controller, useForm } from "react-hook-form";
 import {
+  ActivityIndicator,
   Image,
   KeyboardAvoidingView,
   Platform,
@@ -20,6 +21,7 @@ import { Button } from "@/components/Button";
 import { DietToggle } from "@/components/DietToggle";
 import { Input } from "@/components/Input";
 import { useCreateMeal } from "@/queries/meals";
+import { useEstimateCalories } from "@/queries/calories";
 import { parseFormDateTime } from "@/utils/date";
 
 // ── Schema ─────────────────────────────────────────────────────────────────────
@@ -27,6 +29,7 @@ import { parseFormDateTime } from "@/utils/date";
 const schema = z.object({
   name: z.string().min(1, "Informe o nome"),
   description: z.string().optional(),
+  calories: z.string().optional(),
   date: z.string().min(1, "Informe a data"),
   time: z.string().min(1, "Informe o horário"),
   isOnDiet: z.boolean({ error: "Selecione uma opção" }),
@@ -90,21 +93,40 @@ export default function NewMeal() {
   const { toast } = useToast();
   const [submitted, setSubmitted] = useState<boolean | null>(null);
   const { mutateAsync: createMeal, isPending } = useCreateMeal();
+  const { mutateAsync: estimateCalories, isPending: isEstimating } = useEstimateCalories();
 
   const {
     control,
     handleSubmit,
+    getValues,
+    setValue,
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(schema),
-    defaultValues: { name: "", description: "", date: "", time: "" },
+    defaultValues: { name: "", description: "", calories: "", date: "", time: "" },
   });
+
+  const handleEstimate = async () => {
+    const description = getValues("description");
+    if (!description) {
+      toast("Escreva uma descrição para estimar as calorias.", "info");
+      return;
+    }
+    try {
+      const result = await estimateCalories(description);
+      setValue("calories", String(result.estimated_calories));
+      toast(`Estimativa: ${result.estimated_calories} kcal (${result.confidence})`, "success");
+    } catch {
+      toast("Não foi possível estimar as calorias agora.", "error");
+    }
+  };
 
   const onSubmit = async (data: FormData) => {
     try {
       await createMeal({
         name: data.name,
         description: data.description || undefined,
+        calories: data.calories ? Number(data.calories) : undefined,
         eaten_at: parseFormDateTime(data.date, data.time),
         is_on_diet: data.isOnDiet,
       });
@@ -177,6 +199,40 @@ export default function NewMeal() {
                 numberOfLines={5}
                 textAlignVertical="top"
                 style={{ minHeight: 120 }}
+              />
+            )}
+          />
+
+          {/* Calorias */}
+          <Controller
+            control={control}
+            name="calories"
+            render={({ field: { onChange, value } }) => (
+              <Input
+                label="Calorias (kcal)"
+                value={value}
+                onChangeText={onChange}
+                keyboardType="numeric"
+                placeholder="0"
+                rightElement={
+                  <TouchableOpacity
+                    onPress={handleEstimate}
+                    disabled={isEstimating}
+                    className="flex-row items-center gap-1"
+                    hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                  >
+                    {isEstimating ? (
+                      <ActivityIndicator size="small" color="#639339" />
+                    ) : (
+                      <>
+                        <Sparkles size={16} color="#639339" />
+                        <Text className="text-xs font-sans-sb text-greenDark">
+                          Estimar com IA
+                        </Text>
+                      </>
+                    )}
+                  </TouchableOpacity>
+                }
               />
             )}
           />

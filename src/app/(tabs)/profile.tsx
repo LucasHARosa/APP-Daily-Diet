@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
-  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LogOut, Minus, Plus } from 'lucide-react-native';
@@ -15,6 +14,7 @@ import { useAuthStore } from '@/stores/auth-store';
 import { useToast } from '@/stores/toast-store';
 import { Button } from '@/components/Button';
 import { Input } from '@/components/Input';
+import { Skeleton } from '@/components/Skeleton';
 import { useProfile, useUpdateProfile } from '@/queries/profile';
 import { ageToBirthDate, birthDateToAge } from '@/utils/date';
 
@@ -183,7 +183,46 @@ export default function ProfileScreen() {
           </View>
 
           {isLoading ? (
-            <ActivityIndicator color="#639339" />
+            <>
+              {/* Dados físicos */}
+              <View className="gap-3">
+                <Skeleton className="w-32 h-3" />
+                <View className="flex-row gap-3">
+                  <Skeleton className="flex-1 h-14" />
+                  <Skeleton className="flex-1 h-14" />
+                </View>
+                <View className="flex-row gap-3">
+                  <Skeleton className="flex-1 h-14" />
+                  <Skeleton className="flex-1 h-14" />
+                </View>
+              </View>
+
+              {/* Nível de atividade */}
+              <View className="gap-3">
+                <Skeleton className="w-40 h-3" />
+                <View className="flex-row flex-wrap gap-2">
+                  <Skeleton className="w-28 h-9 rounded-full" />
+                  <Skeleton className="w-32 h-9 rounded-full" />
+                  <Skeleton className="w-36 h-9 rounded-full" />
+                  <Skeleton className="w-24 h-9 rounded-full" />
+                </View>
+              </View>
+
+              {/* Frequência na academia */}
+              <View className="gap-3">
+                <Skeleton className="w-44 h-3" />
+                <Skeleton className="h-16" />
+              </View>
+
+              {/* Metabolismo */}
+              <View className="gap-3">
+                <Skeleton className="w-36 h-3" />
+                <View className="flex-row gap-3">
+                  <Skeleton className="flex-1 h-20" />
+                  <Skeleton className="flex-1 h-20" />
+                </View>
+              </View>
+            </>
           ) : (
             <>
               {/* Dados físicos */}

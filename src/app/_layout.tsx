@@ -38,7 +38,7 @@ export default function RootLayout() {
     } else if (isAuthenticated && inAuth) {
       router.replace('/(tabs)');
     }
-  }, [isAuthenticated, isReady]);
+  }, [isAuthenticated, isReady, segments.join('/')]);
 
   if (!isReady) return null;
 

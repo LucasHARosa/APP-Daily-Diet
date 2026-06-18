@@ -48,6 +48,39 @@ export function groupMealsByDate(meals: Meal[]): { date: string; data: Meal[] }[
   return Array.from(map.entries()).map(([date, data]) => ({ date, data }));
 }
 
+export function parseFormDate(value: string): Date | null {
+  // "15/06/2026" → Date (horário local)
+  const match = value.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (!match) return null;
+  const [, dd, mm, yyyy] = match;
+  return new Date(Number(yyyy), Number(mm) - 1, Number(dd));
+}
+
+export function parseFormTime(value: string): Date | null {
+  // "12:00" → Date de hoje com esse horário (local)
+  const match = value.match(/^(\d{2}):(\d{2})$/);
+  if (!match) return null;
+  const [, hh, min] = match;
+  const date = new Date();
+  date.setHours(Number(hh), Number(min), 0, 0);
+  return date;
+}
+
+export function dateToFormDate(date: Date): string {
+  // Date → "15/06/2026" (horário local)
+  const dd = String(date.getDate()).padStart(2, '0');
+  const mm = String(date.getMonth() + 1).padStart(2, '0');
+  const yyyy = String(date.getFullYear());
+  return `${dd}/${mm}/${yyyy}`;
+}
+
+export function dateToFormTime(date: Date): string {
+  // Date → "12:00" (horário local)
+  const hh = String(date.getHours()).padStart(2, '0');
+  const min = String(date.getMinutes()).padStart(2, '0');
+  return `${hh}:${min}`;
+}
+
 export function formatISODateLabel(date: string): string {
   // "2026-06-15" → "15.06.26"
   const [yyyy, mm, dd] = date.split('-');

@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import { useRouter } from "expo-router";
 import { ArrowLeft, Sparkles } from "lucide-react-native";
 import { useState } from "react";
@@ -22,7 +23,13 @@ import { DietToggle } from "@/components/DietToggle";
 import { Input } from "@/components/Input";
 import { useCreateMeal } from "@/queries/meals";
 import { useEstimateCalories } from "@/queries/calories";
-import { parseFormDateTime } from "@/utils/date";
+import {
+  dateToFormDate,
+  dateToFormTime,
+  parseFormDate,
+  parseFormDateTime,
+  parseFormTime,
+} from "@/utils/date";
 
 // ── Schema ─────────────────────────────────────────────────────────────────────
 
@@ -92,8 +99,12 @@ export default function NewMeal() {
   const router = useRouter();
   const { toast } = useToast();
   const [submitted, setSubmitted] = useState<boolean | null>(null);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showTimePicker, setShowTimePicker] = useState(false);
   const { mutateAsync: createMeal, isPending } = useCreateMeal();
   const { mutateAsync: estimateCalories, isPending: isEstimating } = useEstimateCalories();
+
+  const now = new Date();
 
   const {
     control,
@@ -103,7 +114,13 @@ export default function NewMeal() {
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(schema),
-    defaultValues: { name: "", description: "", calories: "", date: "", time: "" },
+    defaultValues: {
+      name: "",
+      description: "",
+      calories: "",
+      date: dateToFormDate(now),
+      time: dateToFormTime(now),
+    },
   });
 
   const handleEstimate = async () => {
@@ -240,17 +257,31 @@ export default function NewMeal() {
           {/* Data + Hora */}
           <View className="flex-row gap-4">
             <View className="flex-1 gap-1">
+              <Text className="text-sm font-sans-md text-gray2">Data</Text>
               <Controller
                 control={control}
                 name="date"
-                render={({ field: { onChange, value } }) => (
-                  <Input
-                    label="Data"
-                    value={value}
-                    onChangeText={onChange}
-                    placeholder="DD/MM/AAAA"
-                    keyboardType="numeric"
-                  />
+                render={({ field: { value } }) => (
+                  <>
+                    <TouchableOpacity
+                      onPress={() => setShowDatePicker(true)}
+                      className="rounded-lg border border-gray5 bg-white px-4 py-3"
+                    >
+                      <Text className="text-base text-gray1">{value}</Text>
+                    </TouchableOpacity>
+                    {showDatePicker && (
+                      <DateTimePicker
+                        value={parseFormDate(value) ?? now}
+                        mode="date"
+                        display={Platform.OS === "ios" ? "inline" : "default"}
+                        onValueChange={(_event, selected: Date) => {
+                          setShowDatePicker(false);
+                          setValue("date", dateToFormDate(selected));
+                        }}
+                        onDismiss={() => setShowDatePicker(false)}
+                      />
+                    )}
+                  </>
                 )}
               />
               {errors.date && (
@@ -261,17 +292,31 @@ export default function NewMeal() {
             </View>
 
             <View className="flex-1 gap-1">
+              <Text className="text-sm font-sans-md text-gray2">Hora</Text>
               <Controller
                 control={control}
                 name="time"
-                render={({ field: { onChange, value } }) => (
-                  <Input
-                    label="Hora"
-                    value={value}
-                    onChangeText={onChange}
-                    placeholder="HH:MM"
-                    keyboardType="numeric"
-                  />
+                render={({ field: { value } }) => (
+                  <>
+                    <TouchableOpacity
+                      onPress={() => setShowTimePicker(true)}
+                      className="rounded-lg border border-gray5 bg-white px-4 py-3"
+                    >
+                      <Text className="text-base text-gray1">{value}</Text>
+                    </TouchableOpacity>
+                    {showTimePicker && (
+                      <DateTimePicker
+                        value={parseFormTime(value) ?? now}
+                        mode="time"
+                        display={Platform.OS === "ios" ? "spinner" : "default"}
+                        onValueChange={(_event, selected: Date) => {
+                          setShowTimePicker(false);
+                          setValue("time", dateToFormTime(selected));
+                        }}
+                        onDismiss={() => setShowTimePicker(false)}
+                      />
+                    )}
+                  </>
                 )}
               />
               {errors.time && (

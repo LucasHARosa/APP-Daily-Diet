@@ -34,13 +34,13 @@ function getPeriodRange(period: Period): { start: string; end: string } {
 function bestDay(groups: MetricsPeriodGroup[]): string {
   if (!groups.length) return '—';
   const best = groups.reduce((a, b) => (b.totalOnDiet > a.totalOnDiet ? b : a));
-  return best.totalOnDiet > 0 ? best.date : '—';
+  return best.totalOnDiet > 0 ? formatISODateLabel(best.date) : '—';
 }
 
 function worstDay(groups: MetricsPeriodGroup[]): string {
   if (!groups.length) return '—';
   const worst = groups.reduce((a, b) => (b.totalOffDiet > a.totalOffDiet ? b : a));
-  return worst.totalOffDiet > 0 ? worst.date : '—';
+  return worst.totalOffDiet > 0 ? formatISODateLabel(worst.date) : '—';
 }
 
 // ── Sub-components ─────────────────────────────────────────────────────────────

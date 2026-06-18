@@ -11,24 +11,12 @@ A React Native app to track daily meals and monitor diet progress — built with
 
 ---
 
-## 📱 Demo
+## Screenshots
 
 <div align="center">
-  <img src=".github/assets/demo.gif" alt="App demo" width="300"/>
-</div>
-
----
-
-## 🖼️ Screenshots
-
-<div align="center">
-  <img src=".github/assets/screen-home.png" alt="Home" width="200"/>
-  &nbsp;
-  <img src=".github/assets/screen-stats.png" alt="Statistics" width="200"/>
-  &nbsp;
-  <img src=".github/assets/screen-plan.png" alt="Food Plan" width="200"/>
-  &nbsp;
-  <img src=".github/assets/screen-profile.png" alt="Profile" width="200"/>
+  <img src="assets/images/prints1.png" alt="App screenshots 1" width="300"/>
+  <br/>
+  <img src="assets/images/prints2.png" alt="App screenshots 2" width="300"/>
 </div>
 
 ---

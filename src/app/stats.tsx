@@ -5,7 +5,7 @@ import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from 'rea
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useMetricsSummary, useMetricsByPeriod } from '@/queries/metrics';
-import { formatISODate } from '@/utils/date';
+import { formatISODate, formatISODateLabel } from '@/utils/date';
 import type { MetricsPeriodGroup } from '@/types/api';
 
 // ── Types ──────────────────────────────────────────────────────────────────────

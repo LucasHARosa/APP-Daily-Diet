@@ -1,14 +1,14 @@
-import { useMutation } from '@tanstack/react-query';
-import { api } from '@/services/api';
-import { useAuthStore, type AuthUser } from '@/stores/auth-store';
-import type { LoginResponse } from '@/types/api';
+import { api } from "@/services/api";
+import { useAuthStore, type AuthUser } from "@/stores/auth-store";
+import type { LoginResponse } from "@/types/api";
+import { useMutation } from "@tanstack/react-query";
 
 export function useLoginMutation() {
   const login = useAuthStore((s) => s.login);
 
   return useMutation({
     mutationFn: async (data: { email: string; password: string }) => {
-      const res = await api.post<LoginResponse>('/sessions', data);
+      const res = await api.post<LoginResponse>("/sessions", data);
       return res.data;
     },
     onSuccess: async (data) => {
@@ -24,8 +24,12 @@ export function useLoginMutation() {
 
 export function useRegisterMutation() {
   return useMutation({
-    mutationFn: async (data: { name: string; email: string; password: string }) => {
-      const res = await api.post('/users', data);
+    mutationFn: async (data: {
+      name: string;
+      email: string;
+      password: string;
+    }) => {
+      const res = await api.post("/users", data);
       return res.data;
     },
   });

@@ -48,6 +48,12 @@ export function groupMealsByDate(meals: Meal[]): { date: string; data: Meal[] }[
   return Array.from(map.entries()).map(([date, data]) => ({ date, data }));
 }
 
+export function formatISODateLabel(date: string): string {
+  // "2026-06-15" → "15.06.26"
+  const [yyyy, mm, dd] = date.split('-');
+  return `${dd}.${mm}.${yyyy.slice(2)}`;
+}
+
 export function formatISODate(date: Date): string {
   // Date → "YYYY-MM-DD"
   const yyyy = date.getFullYear();

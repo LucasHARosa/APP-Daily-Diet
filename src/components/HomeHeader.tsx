@@ -1,25 +1,25 @@
-import { Image, Text, View } from 'react-native';
+import { Image, Text, View } from "react-native";
 
-import { useAuthStore } from '@/stores/auth-store';
+import { useAuthStore } from "@/stores/auth-store";
 
 export function HomeHeader() {
   const { user } = useAuthStore();
-  const firstName = user?.name?.split(' ')[0] ?? 'Visitante';
+  const firstName = user?.name?.split(" ")[0] ?? "Visitante";
   const initials = user?.name
     ? user.name
-        .split(' ')
+        .split(" ")
         .slice(0, 2)
         .map((n) => n[0])
-        .join('')
+        .join("")
         .toUpperCase()
-    : 'U';
+    : "U";
 
   return (
     <View className="flex-row items-center justify-between px-6 py-4">
       <View className="flex-row items-center gap-3">
         <Image
-          source={require('@/assets/images/Logo.png')}
-          className="w-10 h-10"
+          source={require("@/assets/images/Logo.png")}
+          className="w-auto h-8"
           resizeMode="contain"
         />
         <View>
